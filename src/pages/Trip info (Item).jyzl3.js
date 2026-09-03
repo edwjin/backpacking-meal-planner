@@ -10,11 +10,9 @@ $w.onReady(() => {
         console.error("No trip ID found in the URL");
         return;
       }
-
       //Filter the dataset based on the trip ID
       const dataset = $w('#TripInfo');
       await dataset.setFilter(wixData.filter().eq('_id', tripId));
-
       // Get the current item from the dataset
       const trip = dataset.getCurrentItem();
       
@@ -22,10 +20,8 @@ $w.onReady(() => {
         console.error("No trip found with ID:", tripId);
         return;
       }
-
       // Calculate calorie target and tag based on intensity
       const { dailyRate, calorieTag } = getCalorieTag(trip.intensityLevel[0]);
-
       // Update calorie display
       $w('#calorieTargetText').html = `<p style="font-size: 18px;">Estimated target: at least <strong>${dailyRate}</strong> calories/day</p>`;
       
@@ -56,26 +52,22 @@ function getCalorieTag(intensity) {
 }
 
 async function searchPostsByTagNames(tagNames) {
-
   // 1. Query the Tags collection for UUIDs
   const tagResult = await wixData.query("Blog/Tags")
     .hasSome("label", tagNames)
     .find();
-
   const tagIds = tagResult.items.map(tag => tag._id);
-
   // 2. Use those IDs to query Blog/Posts
   const postsResult = await wixData.query("Blog/Posts")
     .hasAll("tags", tagIds) // Or use hasSome() if partial match is OK
     .find();
-
   return postsResult.items;
 }
+
 // Function to filter blog posts based on required tags
 async function filterBlogPosts(requiredTags) {
   try {
     const results = await searchPostsByTagNames(requiredTags);
-
     if (results.length) {
       $w('#fallbackText').hide();
       displayBlogPosts(results);
@@ -96,7 +88,7 @@ function displayBlogPosts(posts) {
   const rep = $w('#recommendationRepeater');
   rep.data = posts;
   rep.forEachItem(($item, itemData, i) => {
-    $item('#postTitle').html = '<p style="font-size: 18px;">' + itemData.title || `Recipe ${i + 1}` + "</p>";
+    $item('#postTitle').html = '<p style="font-size: 18px;">' + (itemData.title || `Recipe ${i + 1}`) + '</p>';
     if ($item('#readMoreButton')) {
       $item('#readMoreButton').label = "Read More →";
       $item('#readMoreButton').link = "/post/" + itemData.slug;
